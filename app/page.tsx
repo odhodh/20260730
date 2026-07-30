@@ -49,7 +49,7 @@ export default function Home() {
   const [settings, setSettings] = useState<Settings>({ apiKey: "", model: "gemini-3.5-flash-lite" });
   const [showSettings, setShowSettings] = useState(false);
   const [student, setStudent] = useState<StudentInfo>({ studentNumber: "", studentName: "", grade: "2학년", subject: "" });
-  const [state, setState] = useState<ResearchState>({ topic: "", direction: "원리와 메커니즘" });
+  const [state, setState] = useState<ResearchState>({ topic: "", direction: "" });
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ export default function Home() {
     }
   }, []);
 
-  const canStart = state.topic.trim().length >= 2 && student.studentNumber.trim() && student.studentName.trim() && student.subject.trim();
+  const canStart = state.topic.trim().length >= 2 && state.direction && student.studentNumber.trim() && student.studentName.trim() && student.subject.trim();
   const studentId = `${student.studentNumber} ${student.studentName}`.trim();
   const context = useMemo(() => JSON.stringify(state), [state]);
 
@@ -117,7 +117,7 @@ export default function Home() {
   }
 
   function reset() {
-    setState({ topic: "", direction: "원리와 메커니즘" }); setStudent({ studentNumber: "", studentName: "", grade: "2학년", subject: "" });
+    setState({ topic: "", direction: "" }); setStudent({ studentNumber: "", studentName: "", grade: "2학년", subject: "" });
     setStep(0); setResult(null); setError(""); setSaved(false);
   }
 
