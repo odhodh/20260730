@@ -9,9 +9,11 @@ type TopicInput = {
 };
 
 function config() {
-  const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase 환경 변수가 아직 연결되지 않았습니다.");
+  const url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)?.replace(/\/$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) {
+    throw new Error("Supabase URL 또는 서버 전용 Secret Key가 연결되지 않았습니다.");
+  }
   return { url, key };
 }
 
