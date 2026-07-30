@@ -67,7 +67,6 @@ export default function Home() {
   const context = useMemo(() => JSON.stringify(state), [state]);
 
   async function generate(nextStep: number, nextState = state) {
-    if (!settings.apiKey.trim()) { setShowSettings(true); setError("먼저 설정에서 Gemini API Key를 입력해 주세요."); return; }
     setLoading(true); setError(""); setSaved(false);
     try {
       const response = await fetch("/api/generate", {
@@ -159,7 +158,7 @@ export default function Home() {
               <button className="button primary wide" disabled={!canStart || loading} onClick={() => generate(1)}>
                 {loading ? "관점을 펼치는 중…" : <>10가지 관점 만나기 <ArrowIcon size={18} /></>}
               </button>
-              {!settings.apiKey && <button className="key-hint" onClick={() => setShowSettings(true)}><KeyIcon size={15}/> 시작 전 Gemini API Key를 설정해 주세요</button>}
+              {!settings.apiKey && <button className="key-hint" onClick={() => setShowSettings(true)}><KeyIcon size={15}/> 개인 Gemini API Key를 사용하려면 설정에서 입력해 주세요</button>}
             </div>
           </section>
         )}

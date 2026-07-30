@@ -74,13 +74,17 @@ function parseJson(text: string) {
 export async function POST(request: Request) {
   try {
     const body = await request.json() as { step?: number; apiKey?: string; model?: string; context?: ResearchState };
-    if (!body.apiKey || !body.context || !body.step || body.step < 1 || body.step > 5) {
+    if (!body.context || !body.step || body.step < 1 || body.step > 5) {
       return Response.json({ error: "요청 정보가 올바르지 않습니다." }, { status: 400 });
+    }
+    const apiKey = body.apiKey?.trim() || process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
+    if (!apiKey) {
+      return Response.json({ error: "Gemini API Key가 연결되지 않았습니다. Vercel 환경 변수 GEMINI_API_KEY를 확인해 주세요." }, { status: 500 });
     }
     const model = (body.model || "gemini-3.5-flash-lite").replace(/^models\//, "");
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": body.apiKey },
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt(body.step, body.context) }] },
         contents: [{ role: "user", parts: [{ text: `${body.step}단계 결과를 생성해 주세요.` }] }],
