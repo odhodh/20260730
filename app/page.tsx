@@ -10,7 +10,7 @@ const stepLabels = ["관점 발견", "세 길", "탐구 틀", "더 깊이", "보
 const directionOptions = ["원리와 메커니즘", "사회적 영향", "문제와 해결", "비교와 대조", "윤리와 쟁점"];
 
 type Settings = { apiKey: string; model: string };
-type StudentInfo = { studentId: string; grade: string; subject: string };
+type StudentInfo = { studentNumber: string; studentName: string; grade: string; subject: string };
 
 function SettingsModal({ value, onClose, onSave }: { value: Settings; onClose: () => void; onSave: (v: Settings) => void }) {
   const [draft, setDraft] = useState(value);
@@ -48,8 +48,8 @@ function StepRail({ current }: { current: number }) {
 export default function Home() {
   const [settings, setSettings] = useState<Settings>({ apiKey: "", model: "gemini-3.5-flash-lite" });
   const [showSettings, setShowSettings] = useState(false);
-  const [student, setStudent] = useState<StudentInfo>({ studentId: "", grade: "2학년", subject: "" });
-  const [state, setState] = useState<ResearchState>({ topic: "", direction: "" });
+  const [student, setStudent] = useState<StudentInfo>({ studentNumber: "", studentName: "", grade: "2학년", subject: "" });
+  const [state, setState] = useState<ResearchState>({ topic: "", direction: "원리와 메커니즘" });
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,8 @@ export default function Home() {
     }
   }, []);
 
-  const canStart = state.topic.trim().length >= 2 && state.direction && student.studentId.trim() && student.subject.trim();
+  const canStart = state.topic.trim().length >= 2 && student.studentNumber.trim() && student.studentName.trim() && student.subject.trim();
+  const studentId = `${student.studentNumber} ${student.studentName}`.trim();
   const context = useMemo(() => JSON.stringify(state), [state]);
 
   async function generate(nextStep: number, nextState = state) {
@@ -106,7 +107,7 @@ export default function Home() {
     try {
       const response = await fetch("/api/topics", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ student_id: student.studentId, grade: student.grade, subject: student.subject, initial_topic: state.topic, final_report_md: finalReport }),
+        body: JSON.stringify({ student_id: studentId, grade: student.grade, subject: student.subject, initial_topic: state.topic, final_report_md: finalReport }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "저장하지 못했습니다.");
@@ -116,7 +117,7 @@ export default function Home() {
   }
 
   function reset() {
-    setState({ topic: "", direction: "" }); setStudent({ studentId: "", grade: "2학년", subject: "" });
+    setState({ topic: "", direction: "원리와 메커니즘" }); setStudent({ studentNumber: "", studentName: "", grade: "2학년", subject: "" });
     setStep(0); setResult(null); setError(""); setSaved(false);
   }
 
@@ -146,8 +147,9 @@ export default function Home() {
               <p>아직 완벽한 주제가 아니어도 괜찮아요. 지금 궁금한 현상이나 개념이면 충분합니다.</p>
               <label className="field-label" htmlFor="topic">막연한 관심사 또는 탐구 주제</label>
               <textarea id="topic" value={state.topic} onChange={(e) => setState({ ...state, topic: e.target.value })} placeholder="예: 미세플라스틱은 우리 몸에 어떤 영향을 줄까?" rows={3} />
-              <div className="student-grid">
-                <label><span className="field-label">학번 · 이름</span><input value={student.studentId} onChange={(e) => setStudent({ ...student, studentId: e.target.value })} placeholder="2107 김탐구" /></label>
+              <div className="student-grid student-grid-four">
+                <label><span className="field-label">학번</span><input value={student.studentNumber} onChange={(e) => setStudent({ ...student, studentNumber: e.target.value })} placeholder="2107" inputMode="numeric" /></label>
+                <label><span className="field-label">이름</span><input value={student.studentName} onChange={(e) => setStudent({ ...student, studentName: e.target.value })} placeholder="김탐구" /></label>
                 <label><span className="field-label">학년</span><select value={student.grade} onChange={(e) => setStudent({ ...student, grade: e.target.value })}><option>1학년</option><option>2학년</option><option>3학년</option></select></label>
                 <label><span className="field-label">과목</span><input value={student.subject} onChange={(e) => setStudent({ ...student, subject: e.target.value })} placeholder="생명과학" /></label>
               </div>
@@ -168,7 +170,7 @@ export default function Home() {
             <div className="workspace-heading">
               <div><span className="section-kicker">STEP {String(step).padStart(2, "0")}</span>
                 <h1>{step === 1 ? "어떤 관점으로 바라볼까요?" : step === 2 ? "탐구의 세 길이 열렸어요." : step === 3 ? "탐구의 뼈대를 확인해 보세요." : step === 4 ? "한 단계 더 깊이 들어가 볼까요?" : "탐구 보고서 설계가 완성됐어요."}</h1>
-                <p>{step < 5 ? "마음이 끌리는 카드를 선택하면 다음 단계로 이어집니다." : `${student.studentId} 학생의 ${student.subject} 탐구 보고서 초안입니다.`}</p>
+                <p>{step < 5 ? "마음이 끌리는 카드를 선택하면 다음 단계로 이어집니다." : `${studentId} 학생의 ${student.subject} 탐구 보고서 초안입니다.`}</p>
               </div>
               <button className="text-button" onClick={reset}>처음부터 다시</button>
             </div>

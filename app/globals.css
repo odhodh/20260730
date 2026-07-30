@@ -72,6 +72,7 @@ body, button, input, textarea, select {
 .start-card h2 { font-size: 30px; }
 .start-card > p, .field-label { color: #5f5f5d; }
 .field-label { font-weight: 400; }
+.student-grid-four { grid-template-columns: 1fr 1fr .7fr 1fr; }
 input, textarea, select { background: #f7f4ed; color: #1c1c1c; border-color: #eceae4; border-radius: 6px; }
 input:focus, textarea:focus, select:focus { border-color: rgba(59,130,246,.75); box-shadow: 0 0 0 3px rgba(59,130,246,.18); background: #f7f4ed; }
 .chip { background: transparent; border-color: #eceae4; color: #1c1c1c; border-radius: 9999px; font-weight: 400; }
@@ -129,6 +130,8 @@ input:focus, textarea:focus, select:focus { border-color: rgba(59,130,246,.75); 
   .intro-grid { padding: 72px 0; }
   .hero-copy h1 { font-size: 38px; letter-spacing: -1.1px; }
   .start-card { margin-top: 48px; border-radius: 12px; }
+  .student-grid-four { grid-template-columns: 1fr 1fr; }
+  .student-grid-four label:first-child { grid-column: auto; }
 }
 
 * { box-sizing: border-box; }
